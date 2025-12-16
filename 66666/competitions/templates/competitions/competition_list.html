@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Список соревнований{% endblock %}
+
+{% block content %}
+    <h2>Список соревнований</h2>
+    
+    <div style="margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+        <h3>Поиск соревнований</h3>
+        <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+                {{ form.query.label_tag }}
+                {{ form.query }}
+            </div>
+            <div>
+                {{ form.sport_type.label_tag }}
+                {{ form.sport_type }}
+            </div>
+            <div>
+                {{ form.status.label_tag }}
+                {{ form.status }}
+            </div>
+            <div style="align-self: end;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Поиск</button>
+            </div>
+        </form>
+    </div>
+    
+    {% if competitions %}
+        {% for competition in competitions %}
+            <div class="competition-card">
+                <h3>{{ competition.name }}</h3>
+                <p><strong>Вид спорта:</strong> {{ competition.get_sport_type_display }}</p>
+                <p><strong>Место:</strong> {{ competition.location }}</p>
+                <p><strong>Дата начала:</strong> {{ competition.start_date|date:"d.m.Y H:i" }}</p>
+                <p><strong>Статус:</strong> 
+                    <span class="badge badge-{{ competition.status }}">
+                        {{ competition.get_status_display }}
+                    </span>
+                </p>
+                <p><strong>Участники:</strong> {{ competition.current_participants }}/{{ competition.max_participants }}</p>
+                
+                <div style="margin-top: 15px;">
+                    <a href="{% url 'competition_detail' competition.pk %}" class="btn btn-primary">Подробнее</a>
+                    
+                    {% if user.is_authenticated %}
+                        {% if perms.competitions.can_edit_competition or user == competition.created_by %}
+                            <a href="{% url 'competition_edit' competition.pk %}" class="btn btn-primary">Редактировать</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Соревнования не найдены.</p>
+    {% endif %}
+    
+    {% if can_create %}
+        <div style="margin-top: 30px;">
+            <a href="{% url 'competition_create' %}" class="btn btn-success">Создать новое соревнование</a>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Удаление соревнования{% endblock %}
+
+{% block content %}
+    <h2>Удаление соревнования</h2>
+    
+    <div style="background: #f8d7da; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3>Внимание!</h3>
+        <p>Вы уверены, что хотите удалить соревнование "<strong>{{ competition.name }}</strong>"?</p>
+        <p>Это действие нельзя отменить.</p>
+    </div>
+    
+    <form method="post" style="display: flex; gap: 10px;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Да, удалить</button>
+        <a href="{% url 'competition_detail' competition.pk %}" class="btn btn-primary">Отмена</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ competition.name }}{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div>
+            <h2>{{ competition.name }}</h2>
+            <p><strong>Вид спорта:</strong> {{ competition.get_sport_type_display }}</p>
+        </div>
+        <div>
+            <span class="badge badge-{{ competition.status }}" style="font-size: 16px;">
+                {{ competition.get_status_display }}
+            </span>
+        </div>
+    </div>
+    
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3>Описание</h3>
+        <p>{{ competition.description|linebreaks }}</p>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
+        <div>
+            <h4>Информация о мероприятии</h4>
+            <p><strong>Место проведения:</strong> {{ competition.location }}</p>
+            <p><strong>Дата начала:</strong> {{ competition.start_date|date:"d.m.Y H:i" }}</p>
+            <p><strong>Дата окончания:</strong> {{ competition.end_date|date:"d.m.Y H:i" }}</p>
+            <p><strong>Создатель:</strong> {{ competition.created_by.username }}</p>
+            <p><strong>Дата создания:</strong> {{ competition.created_at|date:"d.m.Y H:i" }}</p>
+        </div>
+        
+        <div>
+            <h4>Участники</h4>
+            <p><strong>Максимум:</strong> {{ competition.max_participants }}</p>
+            <p><strong>Зарегистрировано:</strong> {{ competition.current_participants }}</p>
+            <p><strong>Свободных мест:</strong> {{ competition.available_slots }}</p>
+            <p><strong>Регистрация:</strong> 
+                {% if competition.is_registration_open %}
+                    <span style="color: green;">Открыта</span>
+                {% else %}
+                    <span style="color: red;">Закрыта</span>
+                {% endif %}
+            </p>
+            
+            {% if user.is_authenticated and not is_participant and competition.is_registration_open and competition.available_slots > 0 %}
+                {% if perms.competitions.can_register_participant %}
+                    <form method="post" action="{% url 'register_participant' competition.pk %}" style="margin-top: 10px;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Зарегистрироваться</button>
+                    </form>
+                {% endif %}
+            {% elif is_participant %}
+                <p style="color: green; margin-top: 10px;">✓ Вы зарегистрированы на это соревнование</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div style="margin-top: 30px; display: flex; gap: 10px;">
+        <a href="{% url 'competition_list' %}" class="btn btn-primary">Назад к списку</a>
+        
+        {% if can_edit %}
+            <a href="{% url 'competition_edit' competition.pk %}" class="btn btn-primary">Редактировать</a>
+        {% endif %}
+        
+        {% if can_delete %}
+            <a href="{% url 'competition_delete' competition.pk %}" class="btn btn-danger">Удалить</a>
+        {% endif %}
+    </div>
+{% endblock %}

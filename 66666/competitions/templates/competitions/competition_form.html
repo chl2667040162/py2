@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if competition %}Редактирование{% else %}Создание{% endif %} соревнования{% endblock %}
+
+{% block content %}
+    <h2>{% if competition %}Редактирование соревнования{% else %}Создание нового соревнования{% endif %}</h2>
+    
+    <form method="post" style="max-width: 600px;">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in field.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if field.help_text %}
+                    <small style="color: #666;">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primary">
+                {% if competition %}Сохранить изменения{% else %}Создать соревнование{% endif %}
+            </button>
+            <a href="{% if competition %}{% url 'competition_detail' competition.pk %}{% else %}{% url 'competition_list' %}{% endif %}" 
+               class="btn btn-primary">
+                Отмена
+            </a>
+        </div>
+    </form>
+{% endblock %}
